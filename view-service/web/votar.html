@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Votar em Candidato</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+        <script src="jquery-3.3.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+
+
+    </head>
+    <body style="background-color: #2C3E50">
+
+        <script>
+
+            var arrCandidatos;
+
+            $(document).ready(function () {
+                // $.get("http://localhost:8000/candidatos/lista", function (candidatos)
+                $.get("http://localhost:8000/candidatos/lista", function (candidatos) {
+
+                    console.log(candidatos);
+
+                    arrCandidatos = candidatos;
+                    arrCandidatos.sort(function (a, b) {
+                        var x = a.nome.toLowerCase();
+                        var y = b.nome.toLowerCase();
+                        if (x < y) {
+                            return -1;
+                        }
+                        if (x > y) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+
+
+                    for (i = 0; i < arrCandidatos.length; i++) {
+
+                        $("#fCandidatos").append("<div class = 'form-check'><input class='form-check-input' type='radio'" +
+                                "name='candidato' id='candidato" + i + "' value='" + i + "'> <label class='form-check-label'" +
+                                " for='candidato'>" + arrCandidatos[i].nome + "</label></div>");
+                    }
+
+                });
+
+                $("#fCandidatos").change(function () {
+                    $("#infoCandidato").empty();
+                    var pos = $("#fCandidatos input[type='radio']:checked").val();
+                    var info = "<label>Id: </label>" + arrCandidatos[pos].id + "<br>" +
+                            "<label>Nome: </label>" + arrCandidatos[pos].nome;
+                    $("#infoCandidato").append(info);
+                }
+                );
+
+                $("#btnVotar").click(function () {
+                    var pos = $("#fCandidatos input[type='radio']:checked").val();
+                    candidato = arrCandidatos[pos];
+                    console.log(candidato);
+                    $.ajax({
+                        type: "POST",
+                        cache: false,
+                        contentType: "application/json",
+                        url: "http://localhost:8000/candidatos/vota",
+                        data: JSON.stringify(candidato),
+                        dataType: 'json',
+                        success: function (resul) {
+                            alert(resul.strResposta);
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <div class="container rounded" >
+            <div class="jumbotron" style="margin: auto;width: 700px">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6">
+                        <form id="fCandidatos" style="padding: 5px; margin-top: 20px">
+                            <h3>Candidatos</h3>
+                        </form>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <h3>Informações do candidato</h3>
+                        <div class="jumbotron" id="infoCandidato" style="margin-right: 15px; background-color: white">
+
+                        </div> 
+                    </div>
+                </div>
+                <button class="btn btn-success btn-lg" id="btnVotar"> Votar</button>
+                <button class="btn btn-link" style="float: right"><span class="LinkVoltar"><a href="javascript:history.back()">Voltar</a></span></button>
+
+            </div>
+        </div>
+
+
+    </body>
+</html>

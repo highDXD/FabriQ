@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Relatório da votação</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <script src="jquery-3.3.1.min.js"></script>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+    </head>
+    <body style="background-color: #2C3E50">
+
+        <div class="container">
+            <div class="jumbotron" style="margin-bottom: 0px">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h1>Relatório da votação</h1>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <table class="table" id="tblCandidatos">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Votos</th>
+                                    <th scope="col">Nome</th>
+                                    <th scope="col">Id</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblBody">
+                            </tbody>
+                        </table>
+                        <button class="btn btn-link" style="margin-top: 10px"><span class="LinkVoltar"><a href="javascript:history.back()">Voltar</a></span></button>
+
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+                        <canvas id="graficoVotacao" width="300" height="300"></canvas> 
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <script>
+
+            var arrCandidatos = [];
+
+            $(document).ready(function () {
+                // $.get("http://localhost:8000/candidatos/lista", function (candidatos)
+                $.get("http://localhost:8100/relatorio/lista", function (candidatos) {
+                    arrCandidatos = candidatos;
+                    arrCandidatos.sort(function (a, b) {
+                        return b.votos - a.votos
+                    });
+                    console.log(candidatos);
+                    var arrNomes = [];
+                    var arrVotos = [];
+                    var n = arrCandidatos.length;
+                    for (i = 0; i < n; i++) {
+                        arrNomes.push(arrCandidatos[i].nome);
+                        arrVotos.push(arrCandidatos[i].votos);
+                        $("#tblBody").append("<tr><th scope='row'>" + arrCandidatos[i].votos + "</th> <td>" + arrCandidatos[i].nome
+                                + "</td> <td>" + arrCandidatos[i].id + "</td>");
+                    }
+
+                    var ctx = document.getElementById("graficoVotacao").getContext("2d");
+                    var myChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                    data: arrVotos,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }],
+                            // These labels appear in the legend and in the tooltips when hovering different arcs
+                            labels: arrNomes
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
